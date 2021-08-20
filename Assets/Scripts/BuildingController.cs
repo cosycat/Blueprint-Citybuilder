@@ -10,6 +10,7 @@ public class BuildingController : MonoBehaviour
     [SerializeField] private string selectedStructureType = null;
 
     private Vector2Int _lastBuildingStartPosition;
+    public bool IsDragging { get; private set; }
 
     private void Awake()
     {
@@ -39,8 +40,14 @@ public class BuildingController : MonoBehaviour
         {
             case InputActionPhase.Performed:
                 _lastBuildingStartPosition = GetTileCoordinatesFromMouseCoordinates(mouseScreenCoordinates);
+                IsDragging = true;
                 break;
             case InputActionPhase.Canceled:
+                if (IsDragging == false)
+                {
+                    Debug.LogWarning("OnBuild should probably not be called from a MouseUp event (canceled) if it wasn't dragging in the first place. This could maybe have happened when the click event started outside of BuildingControllers responsibility, but then ended somehow inside BuildingControllers responsibility (like it started on a GUI Element, but ended somewhere on the world)");
+                    return;
+                }
                 var buildMode = currentStructureType.buildMode;
                 switch (buildMode)
                 {
@@ -58,29 +65,10 @@ public class BuildingController : MonoBehaviour
                         throw new ArgumentOutOfRangeException();
                 }
 
+                IsDragging = false;
                 break;
         }
-
-
-        if (context.performed)
-        {
-            // Vector2 mouseScreenCoordinates = Mouse.current.position.ReadValueFromPreviousFrame();
-            // // Debug.Log(mouseScreenCoordinates);
-            // // Debug.Log(Camera.main);
-            // if (Camera.main == null)
-            //     throw new Exception("No main Camera!");
-            // Vector2 mouseWorldCoordinates = Camera.main.ScreenToWorldPoint(mouseScreenCoordinates);
-            // Debug.Log(mouseWorldCoordinates);
-            // var tileToBuildOn = WorldManager.Instance.GetTileForRealWorldCoordinates(mouseWorldCoordinates.x, mouseWorldCoordinates.y);
-            // if (!tileToBuildOn.HasStructure)
-            // {
-            //     tileToBuildOn.BuildStructureOnTile(selectedStructureType);
-            // }
-            // else
-            // {
-            //     Debug.LogWarning("Tile already has a structure in it!");
-            // }
-        }
+        
     }
 
     private void PlaceRow(Vector2Int rowStart, Vector2Int rowEnd)

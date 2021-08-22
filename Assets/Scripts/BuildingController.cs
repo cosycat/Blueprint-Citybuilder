@@ -6,11 +6,12 @@ using UnityEngine.InputSystem;
 
 public class BuildingController : MonoBehaviour
 {
-    public const bool ShouldSingleBuildModeStayWhileDragging = false;
-
     #region public Members
 
     public static BuildingController Instance { get; private set; }
+
+    public const bool ShouldSingleBuildModeStayWhileDragging = false;
+    public static readonly Color PreviewSpriteColorOverlay = new Color(0, 0, 1, 0.2f);
 
     public bool IsDragging
     {
@@ -31,6 +32,10 @@ public class BuildingController : MonoBehaviour
     #region private Members
 
     private StructureType _selectedStructureType = null;
+
+    private int
+        _selectedStructureTypeID =
+            0; // Only for debugging, to switch between the different structure types easily, before we have a GUI to build with. 
 
     private Vector2Int _currentDraggingStartPosition;
     private bool _isDragging;
@@ -70,13 +75,13 @@ public class BuildingController : MonoBehaviour
             }
         };
         _previewSpriteRendererPrefab = go.AddComponent<SpriteRenderer>();
-        _previewSpriteRendererPrefab.color = new Color(1, 1, 1, 0.2f);
+        _previewSpriteRendererPrefab.color = PreviewSpriteColorOverlay;
         _previewSpriteRendererPrefab.sortingLayerName = "Structures";
     }
 
     private void Start()
     {
-        _selectedStructureType = StructureManager.Instance.GetStructureTypeForName("Road");
+        _selectedStructureType = StructureManager.Instance.GetStructureTypeForID(_selectedStructureTypeID);
     }
 
     #endregion
@@ -132,6 +137,8 @@ public class BuildingController : MonoBehaviour
                 }
 
                 IsDragging = false;
+                CreateSinglePreview(currentMouseTilePosition,
+                    GetPreviewSpriteFromStructureType(_selectedStructureType));
                 break;
         }
     }
@@ -159,6 +166,23 @@ public class BuildingController : MonoBehaviour
             Debug.LogWarning("Should not call this code if we are not in Build Mode!");
         }
         // TODO update building preview
+    }
+
+    /// <summary>
+    /// Select the next structure in the list of all structures.
+    /// Only for Debugging/Testing while we have no GUI yet!
+    /// </summary>
+    /// <param name="context"></param>
+    public void OnSelectNext(InputAction.CallbackContext context)
+    {
+        var nextStructureType = StructureManager.Instance.GetStructureTypeForID(++_selectedStructureTypeID);
+        if (nextStructureType == null)
+        {
+            _selectedStructureTypeID = 0;
+            nextStructureType = StructureManager.Instance.GetStructureTypeForID(_selectedStructureTypeID);
+        }
+
+        _selectedStructureType = nextStructureType;
     }
 
     #endregion
@@ -253,7 +277,7 @@ public class BuildingController : MonoBehaviour
     private void CreateSinglePreview(Vector2Int previewCoord, Sprite previewSprite)
     {
         var worldManager = WorldManager.Instance;
-        if (!worldManager.IsTileInWorld(previewCoord)) return;
+        if (worldManager.GetTileAt(previewCoord)?.HasStructure ?? true) return;
 
         var pos = worldManager.GetWorldCoordinatesForTileCoordinates(previewCoord);
         var spriteRenderer = Instantiate(_previewSpriteRendererPrefab, pos, Quaternion.identity);

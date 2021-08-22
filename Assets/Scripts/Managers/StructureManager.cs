@@ -29,6 +29,12 @@ namespace Managers
             return structures.FirstOrDefault(structureType => structureType.name == typeName);
         }
 
+        [CanBeNull]
+        public StructureType GetStructureTypeForID(int iD)
+        {
+            return iD >= structures.Count ? null : structures[iD]; // Currently the ID is just the location in the list. This will probably change later on.
+        }
+
         public Structure CreateNewStructureForName([NotNull] string typeName)
         {
             if (typeName == null) throw new ArgumentNullException(nameof(typeName));

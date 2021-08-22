@@ -156,7 +156,7 @@ MonoBehaviour:
   - name: Road
     sprite: {fileID: 21300000, guid: 5c4c488bbc3504f3c8bf8aae21e53fb5, type: 3}
     totalHealth: 100
-    buildMode: 2
+    buildMode: 1
   - name: House
     sprite: {fileID: 21300000, guid: e9641143a21d3412d94b1e32c5b198ea, type: 3}
     totalHealth: 100
@@ -510,6 +510,22 @@ MonoBehaviour:
         m_CallState: 2
     m_ActionId: 9603d1bb-1160-4e6c-a549-dd67001d6b33
     m_ActionName: Player/MouseMovement[/Mouse/position]
+  - m_PersistentCalls:
+      m_Calls:
+      - m_Target: {fileID: 1008104570}
+        m_TargetAssemblyTypeName: BuildingController, Assembly-CSharp
+        m_MethodName: OnSelectNext
+        m_Mode: 0
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
+    m_ActionId: c6c1efa2-53e1-4093-9685-b2616f4d9439
+    m_ActionName: Player/SelectNext[/Keyboard/tab]
   m_NeverAutoSwitchControlSchemes: 0
   m_DefaultControlScheme: 
   m_DefaultActionMap: Player

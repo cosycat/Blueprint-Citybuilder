@@ -14,7 +14,6 @@ public class TileGO : MonoBehaviour
 
     public void SetTileType(TileType type)
     {
-        Debug.Log(type);
         _spriteRenderer.color = type._color;
     }
 }

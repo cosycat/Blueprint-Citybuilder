@@ -15,12 +15,12 @@ namespace Managers
 
         private void Awake()
         {
-            Debug.Log("StructureManager awoken");
-            if (Instance == null)
+            if (Instance != null)
             {
-                Debug.Log("StructureManager set");
-                Instance = this;
+                Debug.LogWarning("Something weird happened? StructureManager was already set?!");
             }
+
+            Instance = this;
         }
 
         [CanBeNull]
@@ -29,16 +29,24 @@ namespace Managers
             return structures.FirstOrDefault(structureType => structureType.name == typeName);
         }
 
-        public Structure CreateNewStructureForName(string typeName)
+        public Structure CreateNewStructureForName([NotNull] string typeName)
         {
+            if (typeName == null) throw new ArgumentNullException(nameof(typeName));
             var structureType = GetStructureTypeForName(typeName);
             if (structureType == null) throw new ArgumentException($"No StructureType with name {typeName} found!");
+            return CreateNewStructureForStructureType(structureType);
+        }
+
+        public Structure CreateNewStructureForStructureType([NotNull] StructureType structureType)
+        {
+            if (structureType == null) throw new ArgumentNullException(nameof(structureType));
             var go = new GameObject();
             go.transform.parent = this.transform;
             go.name = structureType.name;
             var structure = go.AddComponent<Structure>();
             structure.Setup(structureType);
             return structure;
-        }
+        } 
+        
     }
 }

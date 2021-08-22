@@ -156,7 +156,7 @@ MonoBehaviour:
   - name: Road
     sprite: {fileID: 21300000, guid: 5c4c488bbc3504f3c8bf8aae21e53fb5, type: 3}
     totalHealth: 100
-    buildMode: 1
+    buildMode: 2
   - name: House
     sprite: {fileID: 21300000, guid: e9641143a21d3412d94b1e32c5b198ea, type: 3}
     totalHealth: 100
@@ -349,7 +349,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 95bc5f7fc9f6f46b5bd04ae4d50b0a17, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  selectedStructureType: Road
 --- !u!4 &1008104571
 Transform:
   m_ObjectHideFlags: 0
@@ -374,6 +373,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1169773276}
   - component: {fileID: 1169773275}
+  - component: {fileID: 1169773277}
   m_Layer: 0
   m_Name: Input Manager
   m_TagString: Untagged
@@ -494,6 +494,22 @@ MonoBehaviour:
         m_CallState: 2
     m_ActionId: ebd5d986-e139-44b4-a6d3-cc168fa7be82
     m_ActionName: Player/Zoom[/Mouse/scroll/y]
+  - m_PersistentCalls:
+      m_Calls:
+      - m_Target: {fileID: 1169773277}
+        m_TargetAssemblyTypeName: InputManager, Assembly-CSharp
+        m_MethodName: OnMouseMovement
+        m_Mode: 0
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
+    m_ActionId: 9603d1bb-1160-4e6c-a549-dd67001d6b33
+    m_ActionName: Player/MouseMovement[/Mouse/position]
   m_NeverAutoSwitchControlSchemes: 0
   m_DefaultControlScheme: 
   m_DefaultActionMap: Player
@@ -513,3 +529,15 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 3
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1169773277
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1169773274}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8f9482def2ec54d24ae505545437148e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 

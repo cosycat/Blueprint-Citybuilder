@@ -34,10 +34,16 @@ public class Tile
 
     public void BuildStructureOnTile(string name)
     {
+        var structureType = StructureManager.Instance.GetStructureTypeForName(name);
+        BuildStructureOnTile(structureType);
+    }
+
+    public void BuildStructureOnTile(StructureType structureType)
+    {
         if (CurrentStructure != null)
             throw new Exception($"Tile {this.ToString()} already has a structure on it!");
         
-        var newStructure = StructureManager.Instance.CreateNewStructureForName(name);
+        var newStructure = StructureManager.Instance.CreateNewStructureForStructureType(structureType);
         newStructure.transform.position = CorrespondingGameObject.transform.position;
         CurrentStructure = newStructure;
     }

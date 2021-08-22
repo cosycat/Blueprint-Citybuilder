@@ -40,6 +40,19 @@ namespace Managers
             return Vector2Int.RoundToInt(coordinates);
         }
 
+        public Vector3 GetWorldCoordinatesForTileCoordinates(Vector2Int tileCoord)
+        {
+            return new Vector3(tileCoord.x, tileCoord.y);
+        }
+
+        public bool IsTileInWorld(Vector2Int tileCoord)
+        {
+            return tileCoord.x >= 0
+                   && tileCoord.y >= 0
+                   && tileCoord.x < worldDimension.x
+                   && tileCoord.y < worldDimension.y;
+        }
+
         [CanBeNull]
         public Tile GetTileForRealWorldCoordinates(Vector2 v)
         {

@@ -37,7 +37,7 @@ public class CameraController : MonoBehaviour
     {
         if (_currentMovement.magnitude > 0)
         {
-            transform.position += _currentMovement * Time.fixedDeltaTime * cameraSpeed;
+            transform.position += _currentMovement * Time.fixedDeltaTime * cameraSpeed; // TODO somehow also factor in zoom level (faster on wider zoom)
             // Debug.Log("Looking around!");
             Debug.Log(_currentMovement);
         }

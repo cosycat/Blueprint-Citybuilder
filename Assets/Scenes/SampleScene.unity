@@ -161,6 +161,10 @@ MonoBehaviour:
     sprite: {fileID: 21300000, guid: e9641143a21d3412d94b1e32c5b198ea, type: 3}
     totalHealth: 100
     buildMode: 0
+  - name: MultiHouse
+    sprite: {fileID: 21300000, guid: e9641143a21d3412d94b1e32c5b198ea, type: 3}
+    totalHealth: 100
+    buildMode: 2
 --- !u!4 &206766732
 Transform:
   m_ObjectHideFlags: 0
@@ -349,6 +353,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 95bc5f7fc9f6f46b5bd04ae4d50b0a17, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  _selectedStructureTypeID: 0
 --- !u!4 &1008104571
 Transform:
   m_ObjectHideFlags: 0
@@ -526,6 +531,22 @@ MonoBehaviour:
         m_CallState: 2
     m_ActionId: c6c1efa2-53e1-4093-9685-b2616f4d9439
     m_ActionName: Player/SelectNext[/Keyboard/tab]
+  - m_PersistentCalls:
+      m_Calls:
+      - m_Target: {fileID: 1169773277}
+        m_TargetAssemblyTypeName: InputManager, Assembly-CSharp
+        m_MethodName: OnCancel
+        m_Mode: 0
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
+    m_ActionId: 0fe42b50-d442-4081-bd63-c3a2b98384e2
+    m_ActionName: Player/Cancel[/Keyboard/escape]
   m_NeverAutoSwitchControlSchemes: 0
   m_DefaultControlScheme: 
   m_DefaultActionMap: Player

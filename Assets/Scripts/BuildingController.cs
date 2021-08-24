@@ -6,11 +6,13 @@ using UnityEngine.InputSystem;
 
 public class BuildingController : MonoBehaviour
 {
+    #region Members
+
     #region public Members
 
     public static BuildingController Instance { get; private set; }
 
-    public const bool ShouldSingleBuildModeStayWhileDragging = false;
+    public const bool ShouldSingleBuildModeStayWhileDragging = true;
     public static readonly Color PreviewSpriteColorOverlay = new Color(0, 0, 1, 0.2f);
 
     public bool IsDragging
@@ -26,32 +28,34 @@ public class BuildingController : MonoBehaviour
         }
     }
 
-    #endregion
+    /// <summary>
+    /// True if a Structure is currently selected (i.e. the player is in building mode). False otherwise.
+    /// </summary>
+    public bool IsBuilding => _selectedStructureType != null;
 
+    #endregion
 
     #region private Members
 
     private StructureType _selectedStructureType = null;
 
-    private int
-        _selectedStructureTypeID =
-            0; // Only for debugging, to switch between the different structure types easily, before we have a GUI to build with. 
+    [SerializeField] private int _selectedStructureTypeID =
+        0; // Only for debugging, to switch between the different structure types easily, before we have a GUI to build with. 
 
     private Vector2Int _currentDraggingStartPosition;
     private bool _isDragging;
-    private List<Vector2Int> _draggingArea = new List<Vector2Int>();
+
+    /// <summary>
+    /// The Area which is used to generate the preview(s) from and to place new buildings.
+    /// </summary>
+    private List<Vector2Int> _draggingBuildingArea = new List<Vector2Int>();
 
     private SpriteRenderer _previewSpriteRendererPrefab;
-
     private List<SpriteRenderer> _previewSpriteObjects = new List<SpriteRenderer>();
 
     #endregion
 
-
-    /// <summary>
-    /// True if a Structure is currently selected (i.e. the player is in building mode). False otherwise.
-    /// </summary>
-    public bool IsBuilding => _selectedStructureType != null;
+    #endregion
 
 
     #region Unity Life Cycle Methods
@@ -113,32 +117,15 @@ public class BuildingController : MonoBehaviour
             case InputActionPhase.Canceled:
                 if (IsDragging == false)
                 {
-                    Debug.LogWarning(
-                        "OnBuild should probably not be called from a MouseUp event (canceled) if it wasn't dragging in the first place. This could maybe have happened when the click event started outside of BuildingControllers responsibility, but then ended somehow inside BuildingControllers responsibility (like it started on a GUI Element, but ended somewhere on the world)");
+                    Debug.Log("Did not build something, because building/dragging was canceled!");
+                    //Debug.LogWarning("OnBuild should probably not be called from a MouseUp event (canceled) if it wasn't dragging in the first place. This could maybe have happened when the click event started outside of BuildingControllers responsibility, but then ended somehow inside BuildingControllers responsibility (like it started on a GUI Element, but ended somewhere on the world)");
                     return;
                 }
 
-                var buildMode = _selectedStructureType.buildMode;
-                switch (buildMode)
-                {
-                    case BuildMode.Single:
-                        PlaceSingleStructure(_currentDraggingStartPosition);
-                        break;
-                    case BuildMode.Row:
-                        PlaceRow(_currentDraggingStartPosition,
-                            currentMouseTilePosition);
-                        break;
-                    case BuildMode.Area:
-                        PlaceArea(_currentDraggingStartPosition,
-                            currentMouseTilePosition);
-                        break;
-                    default:
-                        throw new ArgumentOutOfRangeException();
-                }
+                Build();
 
-                IsDragging = false;
-                CreateSinglePreview(currentMouseTilePosition,
-                    GetPreviewSpriteFromStructureType(_selectedStructureType));
+                ResetDraggingAndPreviews();
+
                 break;
         }
     }
@@ -151,21 +138,14 @@ public class BuildingController : MonoBehaviour
     /// <param name="newTileCoord"></param>
     public void OnMouseMoveOverTile(Vector2Int oldTileCoord, Vector2Int newTileCoord)
     {
-        var previewSprite = GetPreviewSpriteFromStructureType(_selectedStructureType);
-        UpdateDraggingArea(newTileCoord, oldTileCoord);
-        if (IsDragging)
-        {
-            CreateDraggingPreview(previewSprite);
-        }
-        else if (IsBuilding)
-        {
-            CreateBuildingPreview(newTileCoord, previewSprite);
-        }
-        else
+        if (!IsDragging && !IsBuilding)
         {
             Debug.LogWarning("Should not call this code if we are not in Build Mode!");
+            return;
         }
-        // TODO update building preview
+
+        UpdateDraggingArea(newTileCoord, oldTileCoord);
+        UpdatePreviews();
     }
 
     /// <summary>
@@ -175,14 +155,29 @@ public class BuildingController : MonoBehaviour
     /// <param name="context"></param>
     public void OnSelectNext(InputAction.CallbackContext context)
     {
-        var nextStructureType = StructureManager.Instance.GetStructureTypeForID(++_selectedStructureTypeID);
-        if (nextStructureType == null)
+        if (IsDragging) return;
+        if (context.performed)
         {
-            _selectedStructureTypeID = 0;
-            nextStructureType = StructureManager.Instance.GetStructureTypeForID(_selectedStructureTypeID);
-        }
+            Debug.Log("Tab pressed");
+            var nextStructureType = StructureManager.Instance.GetStructureTypeForID(++_selectedStructureTypeID);
+            if (nextStructureType == null)
+            {
+                _selectedStructureTypeID = 0;
+                nextStructureType = StructureManager.Instance.GetStructureTypeForID(_selectedStructureTypeID);
+            }
 
-        _selectedStructureType = nextStructureType;
+            _selectedStructureType = nextStructureType;
+            
+            ResetDraggingAndPreviews();
+        }
+    }
+
+    public void OnCancelBuild(InputAction.CallbackContext context)
+    {
+        if (context.performed)
+        {
+            ResetDraggingAndPreviews();
+        }
     }
 
     #endregion
@@ -191,42 +186,11 @@ public class BuildingController : MonoBehaviour
     #region Building Methods
 
     // TODO use the new draggingArea to build the structures
-    private void PlaceRow(Vector2Int rowStart, Vector2Int rowEnd)
+    private void Build()
     {
-        int startX, startY, endX, endY;
-        if (Mathf.Abs(rowStart.x - rowEnd.x) >= Mathf.Abs(rowStart.y - rowEnd.y))
+        foreach (var buildingCoord in _draggingBuildingArea)
         {
-            startX = Mathf.Max(rowStart.x, rowEnd.x);
-            endX = Mathf.Min(rowStart.x, rowEnd.x);
-            startY = endY = rowStart.y;
-        }
-        else
-        {
-            startY = Mathf.Max(rowStart.y, rowEnd.y);
-            endY = Mathf.Min(rowStart.y, rowEnd.y);
-            startX = endX = rowStart.x;
-        }
-
-        PlaceArea(startX, startY, endX, endY);
-    }
-
-    private void PlaceArea(Vector2Int start, Vector2Int end)
-    {
-        PlaceArea(start.x, start.y, end.x, end.y);
-    }
-
-    private void PlaceArea(int startX, int startY, int endX, int endY)
-    {
-        Debug.Log($"Placing an area from ({startX}, {startY}) to ({endX}, {endY})");
-        Debug.Log($"_currentDraggingStartPosition: {_currentDraggingStartPosition}");
-        if (startX > endX) (endX, startX) = (startX, endX);
-        if (startY > endY) (startY, endY) = (endY, startY);
-        for (int y = startY; y <= endY; y++)
-        {
-            for (int x = startX; x <= endX; x++)
-            {
-                PlaceSingleStructure(new Vector2Int(x, y));
-            }
+            PlaceSingleStructure(buildingCoord);
         }
     }
 
@@ -259,16 +223,11 @@ public class BuildingController : MonoBehaviour
             type.sprite; // Maybe one day each sprite will have it's separate preview sprite, but for now, we use the original, but adjusted to look like a preview.
     }
 
-    private void CreateBuildingPreview(Vector2Int newTileCoord, Sprite previewSprite)
+    private void UpdatePreviews()
     {
-        RemovePreviews();
-        CreateSinglePreview(newTileCoord, previewSprite);
-    }
-
-    private void CreateDraggingPreview(Sprite previewSprite)
-    {
+        var previewSprite = GetPreviewSpriteFromStructureType(_selectedStructureType);
         RemovePreviews(); // If we optimise UpdateDraggingArea to not completely recalculate everything, but only change some tiles, we should also update this, to only remove/add the needed previews.
-        foreach (var tileCoord in _draggingArea)
+        foreach (var tileCoord in _draggingBuildingArea)
         {
             CreateSinglePreview(tileCoord, previewSprite);
         }
@@ -300,19 +259,32 @@ public class BuildingController : MonoBehaviour
 
     #region Helper Methods
 
+    /// <summary>
+    /// Calls update Dragging Area with the current Mouse Position as default arguments.
+    /// </summary>
+    private void UpdateDraggingArea()
+    {
+        var currentMousePosition = InputManager.GetCurrentTileUnderMouse();
+        UpdateDraggingArea(currentMousePosition, currentMousePosition);
+    }
+
     private void UpdateDraggingArea(Vector2Int currMouseTileCoord, Vector2Int lastMouseTileCoord)
     {
         // lastMouseTileCoord can later be used to optimise this to only update some tiles instead of recalculate everything.
-        if (_selectedStructureType.buildMode == BuildMode.Single || currMouseTileCoord == _currentDraggingStartPosition)
+        if (_selectedStructureType.buildMode == BuildMode.Single ||
+            currMouseTileCoord == _currentDraggingStartPosition || !IsDragging)
         {
-            _draggingArea = new List<Vector2Int>(new[]
+            _draggingBuildingArea = new List<Vector2Int>(new[]
             {
-                ShouldSingleBuildModeStayWhileDragging ? _currentDraggingStartPosition : currMouseTileCoord
+                // ReSharper disable once ConditionIsAlwaysTrueOrFalse
+                (IsDragging && ShouldSingleBuildModeStayWhileDragging)
+                    ? _currentDraggingStartPosition
+                    : currMouseTileCoord
             });
             return;
         }
 
-        _draggingArea = new List<Vector2Int>();
+        _draggingBuildingArea = new List<Vector2Int>();
         int startX = _currentDraggingStartPosition.x, startY = _currentDraggingStartPosition.y;
         int endX = currMouseTileCoord.x, endY = currMouseTileCoord.y;
 
@@ -336,9 +308,19 @@ public class BuildingController : MonoBehaviour
         {
             for (int x = startX; x <= endX; x++)
             {
-                _draggingArea.Add(new Vector2Int(x, y));
+                _draggingBuildingArea.Add(new Vector2Int(x, y));
             }
         }
+    }
+
+    /// <summary>
+    /// Sets IsDragging to false and updates the dragging/building area and the previews for the current mouse position.
+    /// </summary>
+    private void ResetDraggingAndPreviews()
+    {
+        IsDragging = false;
+        UpdateDraggingArea();
+        UpdatePreviews();
     }
 
     #endregion

@@ -25,6 +25,14 @@ public class InputManager : MonoBehaviour
             _lastMousePositionInTileCoordinates = currentTileUnderMouse;
         }
     }
+
+    public void OnCancel(InputAction.CallbackContext context)
+    {
+        if (BuildingController.Instance.IsBuilding)
+        {
+            BuildingController.Instance.OnCancelBuild(context);
+        }
+    }
     
     
 

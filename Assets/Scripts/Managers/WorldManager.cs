@@ -1,4 +1,5 @@
 using JetBrains.Annotations;
+using Tiles;
 using UnityEngine;
 
 namespace Managers
@@ -31,7 +32,7 @@ namespace Managers
         {
             TileGO tileGO = Instantiate(tilePrefab, new Vector3(x, y), Quaternion.identity);
             tileGO.transform.SetParent(transform);
-            tileGO.name = $"Tile ({x}, {y})";
+            tileGO.name = tile.ToString();
             return tileGO;
         }
 

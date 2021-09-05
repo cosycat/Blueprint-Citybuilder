@@ -12,6 +12,9 @@ namespace Managers
 
         // TODO load them from a file
         [SerializeField] private List<StructureType> structures;
+        
+        // Hardcoded Structure Types (they always exist and mods can't change that).
+        public StructureType road = new StructureType {name = "Road", buildMode = BuildMode.Row, maxInhabitants = 0, totalHealth = 100};
 
         private void Awake()
         {

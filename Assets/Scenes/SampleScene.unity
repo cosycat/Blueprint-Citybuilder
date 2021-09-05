@@ -157,14 +157,23 @@ MonoBehaviour:
     sprite: {fileID: 21300000, guid: 5c4c488bbc3504f3c8bf8aae21e53fb5, type: 3}
     totalHealth: 100
     buildMode: 1
+    maxInhabitants: 0
   - name: House
     sprite: {fileID: 21300000, guid: e9641143a21d3412d94b1e32c5b198ea, type: 3}
     totalHealth: 100
     buildMode: 0
+    maxInhabitants: 0
   - name: MultiHouse
     sprite: {fileID: 21300000, guid: e9641143a21d3412d94b1e32c5b198ea, type: 3}
     totalHealth: 100
     buildMode: 2
+    maxInhabitants: 0
+  road:
+    name: Road
+    sprite: {fileID: 21300000, guid: 5c4c488bbc3504f3c8bf8aae21e53fb5, type: 3}
+    totalHealth: 100
+    buildMode: 1
+    maxInhabitants: 0
 --- !u!4 &206766732
 Transform:
   m_ObjectHideFlags: 0
@@ -578,3 +587,46 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8f9482def2ec54d24ae505545437148e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+--- !u!1 &1734222988
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1734222990}
+  - component: {fileID: 1734222989}
+  m_Layer: 0
+  m_Name: InhabitantsManager
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &1734222989
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1734222988}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d2b1128a9616444d6a47440b284608fc, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!4 &1734222990
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1734222988}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_RootOrder: 5
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
